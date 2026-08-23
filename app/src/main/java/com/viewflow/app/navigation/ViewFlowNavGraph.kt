@@ -20,9 +20,12 @@ import com.viewflow.app.data.MockData
 import com.viewflow.app.ui.screens.CampDetailScreen
 import com.viewflow.app.ui.screens.CampsScreen
 import com.viewflow.app.ui.screens.DonateScreen
+import com.viewflow.app.ui.screens.EditProfileScreen
 import com.viewflow.app.ui.screens.HomeScreen
+import com.viewflow.app.ui.screens.LoginScreen
 import com.viewflow.app.ui.screens.ProfileScreen
 import com.viewflow.app.ui.screens.RequestBloodScreen
+import com.viewflow.app.ui.screens.SignupScreen
 
 private val mainTabRoutes = setOf(
     Destination.Home.route,
@@ -78,9 +81,33 @@ fun ViewFlowApp() {
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Destination.Home.route,
+            startDestination = Destination.Login.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(Destination.Login.route) {
+                LoginScreen(
+                    onLoginClick = {
+                        navController.navigate(Destination.Home.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        }
+                    },
+                    onSignupClick = {
+                        navController.navigate(Destination.Signup.route)
+                    }
+                )
+            }
+
+            composable(Destination.Signup.route) {
+                SignupScreen(
+                    onBack = { navController.popBackStack() },
+                    onSignupClick = {
+                        navController.navigate(Destination.Home.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable(Destination.Home.route) {
                 HomeScreen(
                     onOpenCamp = { campId ->
@@ -136,7 +163,21 @@ fun ViewFlowApp() {
             }
 
             composable(Destination.Profile.route) {
-                ProfileScreen()
+                ProfileScreen(
+                    onLogout = {
+                        navController.navigate(Destination.Login.route) {
+                            popUpTo(navController.graph.id) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
+                    onEditProfile = {
+                        navController.navigate(Destination.EditProfile.route)
+                    }
+                )
+            }
+
+            composable(Destination.EditProfile.route) {
+                EditProfileScreen(onBack = { navController.popBackStack() })
             }
 
             composable(

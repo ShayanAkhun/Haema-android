@@ -17,7 +17,10 @@ data class Donor(
     val totalDonations: Int,
     val livesSaved: Int,
     val nextEligibleInDays: Int,
-    val city: String
+    val city: String,
+    val email: String,
+    val phone: String,
+    val twoFactorEnabled: Boolean = false
 )
 
 data class BloodCamp(

@@ -12,6 +12,9 @@ import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Destination(val route: String) {
+    data object Login : Destination("login")
+    data object Signup : Destination("signup")
+
     data object Home : Destination("home")
     data object Camps : Destination("camps")
     data object Donate : Destination("donate?campId={campId}") {
@@ -25,6 +28,8 @@ sealed class Destination(val route: String) {
     }
 
     data object RequestBlood : Destination("request_blood")
+
+    data object EditProfile : Destination("edit_profile")
 }
 
 data class BottomNavItem(

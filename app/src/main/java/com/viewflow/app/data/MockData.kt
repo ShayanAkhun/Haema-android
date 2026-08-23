@@ -1,16 +1,25 @@
 package com.viewflow.app.data
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+
 object MockData {
 
-    val currentDonor = Donor(
-        id = "d0",
-        name = "Aarav Sharma",
-        bloodGroup = BloodGroup.O_POS,
-        avatarUrl = "https://i.pravatar.cc/150?img=12",
-        totalDonations = 7,
-        livesSaved = 21,
-        nextEligibleInDays = 0,
-        city = "Lahore"
+    var currentDonor by mutableStateOf(
+        Donor(
+            id = "d0",
+            name = "Aarav Sharma",
+            bloodGroup = BloodGroup.O_POS,
+            avatarUrl = "https://i.pravatar.cc/150?img=12",
+            totalDonations = 7,
+            livesSaved = 21,
+            nextEligibleInDays = 0,
+            city = "Lahore",
+            email = "aarav.sharma@example.com",
+            phone = "+92 300 1234567",
+            twoFactorEnabled = false
+        )
     )
 
     val donorAvatars = listOf(
