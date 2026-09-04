@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.viewflow.app.data.BloodGroup
 import com.viewflow.app.data.Urgency
+import com.viewflow.app.ui.theme.DataMonoFont
 import com.viewflow.app.ui.theme.UrgencyCritical
 import com.viewflow.app.ui.theme.UrgencyLow
 import com.viewflow.app.ui.theme.UrgencyMedium
@@ -51,6 +52,7 @@ fun BloodGroupChip(bloodGroup: BloodGroup, modifier: Modifier = Modifier) {
             text = bloodGroup.label,
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onPrimaryContainer,
+            fontFamily = DataMonoFont,
             fontWeight = FontWeight.Bold
         )
     }
@@ -85,6 +87,53 @@ fun UrgencyChip(urgency: Urgency, modifier: Modifier = Modifier) {
             color = color,
             fontWeight = FontWeight.SemiBold
         )
+    }
+}
+
+/**
+ * A pill-shaped segmented control: one track, [options] segments, the selected
+ * one raised on a surface chip in the primary colour.
+ */
+@Composable
+fun SegmentedToggle(
+    options: List<String>,
+    selectedIndex: Int,
+    onSelect: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clip(RoundedCornerShape(14.dp))
+            .background(MaterialTheme.colorScheme.surfaceVariant)
+            .padding(4.dp),
+        horizontalArrangement = Arrangement.spacedBy(4.dp)
+    ) {
+        options.forEachIndexed { index, label ->
+            val selected = index == selectedIndex
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(
+                        if (selected) MaterialTheme.colorScheme.primary else Color.Transparent
+                    )
+                    .clickable { onSelect(index) }
+                    .padding(vertical = 9.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
+                    color = if (selected) {
+                        MaterialTheme.colorScheme.onPrimary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    maxLines = 1
+                )
+            }
+        }
     }
 }
 
@@ -189,6 +238,7 @@ fun ProgressRow(
             Text(
                 text = "$current / $goal units",
                 style = MaterialTheme.typography.labelMedium,
+                fontFamily = DataMonoFont,
                 fontWeight = FontWeight.SemiBold
             )
         }

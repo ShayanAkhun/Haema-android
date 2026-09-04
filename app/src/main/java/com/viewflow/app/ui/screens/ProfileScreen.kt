@@ -54,6 +54,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 import com.viewflow.app.data.MockData
 import com.viewflow.app.ui.components.BloodGroupChip
 import com.viewflow.app.ui.components.StatCard
+import com.viewflow.app.ui.theme.DataMonoFont
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -87,6 +88,13 @@ fun ProfileScreen(onLogout: () -> Unit, onEditProfile: () -> Unit) {
                     text = donor.city,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(modifier = Modifier.height(2.dp))
+                Text(
+                    text = "ID ${donor.id}",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontFamily = DataMonoFont
                 )
                 Spacer(modifier = Modifier.height(6.dp))
                 BloodGroupChip(bloodGroup = donor.bloodGroup)
@@ -128,7 +136,8 @@ fun ProfileScreen(onLogout: () -> Unit, onEditProfile: () -> Unit) {
                     Text(
                         text = "${record.units} unit",
                         style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.primary,
+                        fontFamily = DataMonoFont
                     )
                 }
                 HorizontalDivider()

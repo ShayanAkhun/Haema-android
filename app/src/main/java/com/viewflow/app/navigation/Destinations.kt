@@ -1,22 +1,30 @@
 package com.viewflow.app.navigation
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalHospital
+import androidx.compose.material.icons.filled.Map
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.outlined.Favorite
+import androidx.compose.material.icons.outlined.Bloodtype
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.LocalHospital
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Person
 import androidx.compose.ui.graphics.vector.ImageVector
 
 sealed class Destination(val route: String) {
+    data object Onboarding : Destination("onboarding")
+
     data object Login : Destination("login")
     data object Signup : Destination("signup")
 
     data object Home : Destination("home")
+
+    /** "Find" tab — the blood-camps browser. */
     data object Camps : Destination("camps")
+
+    /** "Emergency" tab — switchable requests / nearby-donors view. */
+    data object Emergency : Destination("emergency")
+
     data object Donate : Destination("donate?campId={campId}") {
         const val BASE_ROUTE = "donate"
         fun createRoute(campId: String? = null) = if (campId != null) "donate?campId=$campId" else BASE_ROUTE
@@ -41,7 +49,7 @@ data class BottomNavItem(
 
 val bottomNavItems = listOf(
     BottomNavItem(Destination.Home, "Home", Icons.Filled.Home, Icons.Outlined.Home),
-    BottomNavItem(Destination.Camps, "Camps", Icons.Filled.LocalHospital, Icons.Outlined.LocalHospital),
-    BottomNavItem(Destination.Donate, "Donate", Icons.Filled.Favorite, Icons.Outlined.Favorite),
+    BottomNavItem(Destination.Camps, "Find", Icons.Filled.Map, Icons.Outlined.Map),
+    BottomNavItem(Destination.Emergency, "Emergency", Icons.Filled.Bloodtype, Icons.Outlined.Bloodtype),
     BottomNavItem(Destination.Profile, "Profile", Icons.Filled.Person, Icons.Outlined.Person)
 )

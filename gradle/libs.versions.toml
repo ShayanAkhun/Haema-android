@@ -1,15 +1,16 @@
 [versions]
-agp = "9.3.1"
+agp = "9.1.0"
 kotlin = "2.4.10"
-coreKtx = "1.19.0"
-lifecycleRuntimeKtx = "2.11.0"
-activityCompose = "1.13.0"
-composeBom = "2026.08.00"
-navigationCompose = "2.9.8"
+coreKtx = "1.16.0"
+lifecycleRuntimeKtx = "2.9.2"
+activityCompose = "1.10.1"
+composeBom = "2025.06.01"
+navigationCompose = "2.8.9"
 accompanistSystemUiController = "0.36.0"
 accompanistPermissions = "0.37.3"
 lottieCompose = "6.7.1"
 coil = "3.5.0"
+osmdroid = "6.1.20"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -34,6 +35,8 @@ lottie-compose = { group = "com.airbnb.android", name = "lottie-compose", versio
 coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil" }
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil" }
 coil-svg = { group = "io.coil-kt.coil3", name = "coil-svg", version.ref = "coil" }
+
+osmdroid-android = { group = "org.osmdroid", name = "osmdroid-android", version.ref = "osmdroid" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

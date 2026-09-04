@@ -1,11 +1,14 @@
 package com.viewflow.app.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.animateScrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,9 +19,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -33,24 +36,28 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import com.viewflow.app.data.MockData
+import com.viewflow.app.ui.components.DonorMap
 import com.viewflow.app.ui.components.RequestCard
+import com.viewflow.app.ui.components.RequestCardWidth
 import com.viewflow.app.ui.components.SectionHeader
 import com.viewflow.app.ui.components.StatCard
 import android.Manifest
+import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun HomeScreen(
-    onOpenCamp: (String) -> Unit,
     onOpenRequestBlood: () -> Unit,
     onOpenDonateTab: () -> Unit,
     onOpenProfile: () -> Unit
@@ -179,7 +186,29 @@ fun HomeScreen(
             modifier = Modifier.padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(12.dp))
+        val requestsListState = rememberLazyListState()
+        val requestCount = MockData.requests.size
+        val density = LocalDensity.current
+        LaunchedEffect(requestCount) {
+            if (requestCount > 1) {
+                val stridePx = with(density) { (RequestCardWidth + 12.dp).toPx() }
+                while (true) {
+                    delay(3000)
+                    // Skip a tick while the user is actively swiping.
+                    if (!requestsListState.isScrollInProgress) {
+                        val atLastCard = requestsListState.firstVisibleItemIndex >= requestCount - 1
+                        // One card forward, or a slow slide back to the start once we run out of cards.
+                        val delta = if (atLastCard) -stridePx * (requestCount - 1) else stridePx
+                        requestsListState.animateScrollBy(
+                            value = delta,
+                            animationSpec = tween(durationMillis = 1400, easing = FastOutSlowInEasing)
+                        )
+                    }
+                }
+            }
+        }
         LazyRow(
+            state = requestsListState,
             contentPadding = PaddingValues(horizontal = 20.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
@@ -190,9 +219,9 @@ fun HomeScreen(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Nearby camps
+        // Donors near you
         SectionHeader(
-            title = "Camps near you",
+            title = "Near you",
             modifier = Modifier.padding(horizontal = 20.dp)
         )
         Spacer(modifier = Modifier.height(10.dp))
@@ -216,7 +245,7 @@ fun HomeScreen(
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Text(
-                        text = "Allow location access to sort blood camps by distance from you.",
+                        text = "Allow location access to show donors near you on the map.",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
@@ -229,35 +258,15 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        LazyRow(
-            contentPadding = PaddingValues(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            items(MockData.camps) { camp ->
-                Card(
-                    modifier = Modifier
-                        .width(240.dp)
-                        .clickable { onOpenCamp(camp.id) },
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Column(modifier = Modifier.padding(10.dp)) {
-                        com.viewflow.app.ui.components.CampBanner(
-                            bannerUrl = camp.bannerUrl,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(110.dp)
-                        )
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = camp.name,
-                            style = MaterialTheme.typography.titleMedium,
-                            maxLines = 1
-                        )
-                        Spacer(modifier = Modifier.height(4.dp))
-                        com.viewflow.app.ui.components.LocationRow(text = "${camp.distanceKm} km · ${camp.date}")
-                    }
-                }
-            }
-        }
+        DonorMap(
+            donors = MockData.nearbyDonors,
+            centerLatitude = MockData.cityLatitude,
+            centerLongitude = MockData.cityLongitude,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .height(200.dp)
+                .clip(RoundedCornerShape(16.dp))
+        )
     }
 }

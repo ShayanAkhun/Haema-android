@@ -8,7 +8,7 @@ object MockData {
 
     var currentDonor by mutableStateOf(
         Donor(
-            id = "d0",
+            id = "DNR-2049",
             name = "Aarav Sharma",
             bloodGroup = BloodGroup.O_POS,
             avatarUrl = "https://i.pravatar.cc/150?img=12",
@@ -90,7 +90,24 @@ object MockData {
             bloodGroup = BloodGroup.O_NEG,
             unitsNeeded = 3,
             urgency = Urgency.CRITICAL,
-            postedMinutesAgo = 12
+            postedMinutesAgo = 12,
+            expiresInMinutes = 45,
+            requestedBy = "Imran Noor (brother)",
+            note = "Post-surgery bleeding, ICU. Please come to the blood bank on the 2nd floor.",
+            respondents = 2
+        ),
+        BloodRequest(
+            id = "r4",
+            patientName = "Hassan Raza",
+            hospital = "Jinnah Hospital",
+            bloodGroup = BloodGroup.A_POS,
+            unitsNeeded = 4,
+            urgency = Urgency.CRITICAL,
+            postedMinutesAgo = 3,
+            expiresInMinutes = 30,
+            requestedBy = "Dr. Ayesha (attending)",
+            note = "Road accident, active transfusion. Urgent.",
+            respondents = 1
         ),
         BloodRequest(
             id = "r2",
@@ -99,7 +116,23 @@ object MockData {
             bloodGroup = BloodGroup.B_POS,
             unitsNeeded = 2,
             urgency = Urgency.MEDIUM,
-            postedMinutesAgo = 55
+            postedMinutesAgo = 55,
+            expiresInMinutes = 180,
+            requestedBy = "Sana Ahmed (wife)",
+            note = "Scheduled surgery tomorrow morning, building up reserves.",
+            respondents = 3
+        ),
+        BloodRequest(
+            id = "r5",
+            patientName = "Ali Kamran",
+            hospital = "Shalamar Hospital",
+            bloodGroup = BloodGroup.O_POS,
+            unitsNeeded = 2,
+            urgency = Urgency.MEDIUM,
+            postedMinutesAgo = 90,
+            expiresInMinutes = 240,
+            requestedBy = "Kamran Sheikh (father)",
+            respondents = 0
         ),
         BloodRequest(
             id = "r3",
@@ -108,7 +141,122 @@ object MockData {
             bloodGroup = BloodGroup.AB_POS,
             unitsNeeded = 1,
             urgency = Urgency.LOW,
-            postedMinutesAgo = 130
+            postedMinutesAgo = 130,
+            expiresInMinutes = 360,
+            requestedBy = "Zainab Malik (self)",
+            note = "Thalassemia, routine monthly transfusion.",
+            respondents = 5
+        )
+    )
+
+    /** Roughly the centre of the nearby-donors map (Lahore). */
+    const val cityLatitude = 31.5204
+    const val cityLongitude = 74.3587
+
+    val nearbyDonors = listOf(
+        NearbyDonor(
+            id = "d1",
+            name = "Maria Garcia",
+            bloodGroup = BloodGroup.A_POS,
+            avatarUrl = "https://i.pravatar.cc/150?img=5",
+            verified = true,
+            lastDonatedAgo = "3 months ago",
+            eligible = true,
+            phone = "+92 300 1112222",
+            distanceKm = 1.2,
+            latitude = 31.5290,
+            longitude = 74.3450
+        ),
+        NearbyDonor(
+            id = "d2",
+            name = "Nadia Khan",
+            bloodGroup = BloodGroup.O_POS,
+            avatarUrl = "https://i.pravatar.cc/150?img=8",
+            verified = true,
+            lastDonatedAgo = "2 months ago",
+            eligible = true,
+            phone = "+92 301 3334444",
+            distanceKm = 2.0,
+            latitude = 31.5075,
+            longitude = 74.3720
+        ),
+        NearbyDonor(
+            id = "d3",
+            name = "Ghum Ashe",
+            bloodGroup = BloodGroup.O_NEG,
+            avatarUrl = "https://i.pravatar.cc/150?img=15",
+            verified = true,
+            lastDonatedAgo = "9 months ago",
+            eligible = true,
+            phone = "+92 302 5556666",
+            distanceKm = 3.4,
+            latitude = 31.5410,
+            longitude = 74.3310
+        ),
+        NearbyDonor(
+            id = "d4",
+            name = "Usman Tariq",
+            bloodGroup = BloodGroup.B_POS,
+            avatarUrl = "https://i.pravatar.cc/150?img=22",
+            verified = false,
+            lastDonatedAgo = "5 weeks ago",
+            eligible = false,
+            phone = "+92 303 7778888",
+            distanceKm = 4.1,
+            latitude = 31.4880,
+            longitude = 74.3400
+        ),
+        NearbyDonor(
+            id = "d5",
+            name = "Hina Aslam",
+            bloodGroup = BloodGroup.AB_POS,
+            avatarUrl = "https://i.pravatar.cc/150?img=33",
+            verified = true,
+            lastDonatedAgo = "6 months ago",
+            eligible = true,
+            phone = "+92 304 9990000",
+            distanceKm = 5.6,
+            latitude = 31.5560,
+            longitude = 74.3900
+        ),
+        NearbyDonor(
+            id = "d6",
+            name = "Bilal Chaudhry",
+            bloodGroup = BloodGroup.O_POS,
+            avatarUrl = "https://i.pravatar.cc/150?img=51",
+            verified = true,
+            lastDonatedAgo = "4 months ago",
+            eligible = true,
+            phone = "+92 305 2223333",
+            distanceKm = 2.7,
+            latitude = 31.5015,
+            longitude = 74.3150
+        ),
+        NearbyDonor(
+            id = "d7",
+            name = "Sara Iqbal",
+            bloodGroup = BloodGroup.A_NEG,
+            avatarUrl = "https://i.pravatar.cc/150?img=45",
+            verified = false,
+            lastDonatedAgo = "7 weeks ago",
+            eligible = true,
+            phone = "+92 306 4445555",
+            distanceKm = 6.3,
+            latitude = 31.4740,
+            longitude = 74.3850
+        ),
+        NearbyDonor(
+            id = "d8",
+            name = "Kamran Malik",
+            bloodGroup = BloodGroup.B_NEG,
+            avatarUrl = "https://i.pravatar.cc/150?img=60",
+            verified = true,
+            lastDonatedAgo = "5 months ago",
+            eligible = true,
+            phone = "+92 307 6667777",
+            distanceKm = 3.9,
+            latitude = 31.5480,
+            longitude = 74.3600
         )
     )
 

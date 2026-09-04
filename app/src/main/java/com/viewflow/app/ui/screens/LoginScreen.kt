@@ -4,14 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Lock
@@ -32,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import com.viewflow.app.R
 import com.viewflow.app.ui.components.AuthHeroBackground
 import com.viewflow.app.ui.components.AuthTextField
+import com.viewflow.app.ui.components.HaemaWordmark
 
 @Composable
 fun LoginScreen(
@@ -43,25 +41,24 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Full illustration, uncropped: width-filling with a 1:1 aspect ratio to
-        // match the SVG's own viewBox, so nothing is cut off.
+        // Illustration takes whatever vertical space is left after the form, so the
+        // whole screen stays fixed (no scrolling) on any device.
         AuthHeroBackground(
             rawResId = R.raw.login,
             contentScale = ContentScale.Fit,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(1f)
+                .weight(1f)
         )
 
         Column(
             modifier = Modifier.padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Spacer(Modifier.height(8.dp))
+            HaemaWordmark()
+            Spacer(Modifier.height(12.dp))
             Text(
                 text = "Welcome back",
                 style = MaterialTheme.typography.headlineMedium,
@@ -73,7 +70,7 @@ fun LoginScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(Modifier.height(32.dp))
+            Spacer(Modifier.height(24.dp))
 
             AuthTextField(
                 value = email,
@@ -92,7 +89,7 @@ fun LoginScreen(
                 onTogglePasswordVisibility = { passwordVisible = !passwordVisible }
             )
 
-            Spacer(Modifier.height(28.dp))
+            Spacer(Modifier.height(24.dp))
             Button(
                 onClick = onLoginClick,
                 enabled = email.isNotBlank() && password.isNotBlank(),

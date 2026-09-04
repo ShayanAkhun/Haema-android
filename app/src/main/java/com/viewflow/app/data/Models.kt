@@ -43,7 +43,31 @@ data class BloodRequest(
     val bloodGroup: BloodGroup,
     val unitsNeeded: Int,
     val urgency: Urgency,
-    val postedMinutesAgo: Int
+    val postedMinutesAgo: Int,
+    /** Minutes left to fulfil this request before it expires. */
+    val expiresInMinutes: Int,
+    /** Who posted the request (relative, hospital staff, self). */
+    val requestedBy: String = "",
+    /** Optional free-text note from the requester. */
+    val note: String = "",
+    /** Donors who have offered to help so far. */
+    val respondents: Int = 0
+)
+
+/** A donor shown in the "Nearby donors" list / map on the Emergency screen. */
+data class NearbyDonor(
+    val id: String,
+    val name: String,
+    val bloodGroup: BloodGroup,
+    val avatarUrl: String,
+    val verified: Boolean,
+    /** How long ago they last donated, e.g. "3 months ago". */
+    val lastDonatedAgo: String,
+    val eligible: Boolean,
+    val phone: String,
+    val distanceKm: Double,
+    val latitude: Double,
+    val longitude: Double
 )
 
 data class DonationRecord(

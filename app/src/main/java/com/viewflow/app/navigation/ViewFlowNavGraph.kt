@@ -1,13 +1,11 @@
 package com.viewflow.app.navigation
 
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import com.viewflow.app.ui.components.BottomTabBar
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavType
@@ -21,8 +19,10 @@ import com.viewflow.app.ui.screens.CampDetailScreen
 import com.viewflow.app.ui.screens.CampsScreen
 import com.viewflow.app.ui.screens.DonateScreen
 import com.viewflow.app.ui.screens.EditProfileScreen
+import com.viewflow.app.ui.screens.EmergencyScreen
 import com.viewflow.app.ui.screens.HomeScreen
 import com.viewflow.app.ui.screens.LoginScreen
+import com.viewflow.app.ui.screens.OnboardingFlow
 import com.viewflow.app.ui.screens.ProfileScreen
 import com.viewflow.app.ui.screens.RequestBloodScreen
 import com.viewflow.app.ui.screens.SignupScreen
@@ -30,8 +30,10 @@ import com.viewflow.app.ui.screens.SignupScreen
 private val mainTabRoutes = setOf(
     Destination.Home.route,
     Destination.Camps.route,
-    Destination.Donate.route,
-    Destination.Profile.route
+    Destination.Emergency.route,
+    Destination.Profile.route,
+    // Not a tab, but keep the bar visible so the multi-step flow is escapable.
+    Destination.Donate.route
 )
 
 @Composable
@@ -44,46 +46,46 @@ fun ViewFlowApp() {
     Scaffold(
         bottomBar = {
             if (showBottomBar) {
-                NavigationBar {
-                    bottomNavItems.forEach { item ->
-                        val selected = backStackEntry?.destination?.hierarchy?.any {
-                            it.route == item.destination.route
-                        } == true
-
-                        NavigationBarItem(
-                            selected = selected,
-                            onClick = {
-                                val route = if (item.destination is Destination.Donate) {
-                                    Destination.Donate.createRoute()
-                                } else {
-                                    item.destination.route
-                                }
-                                navController.navigate(route) {
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
-                                    }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            },
-                            icon = {
-                                androidx.compose.material3.Icon(
-                                    imageVector = if (selected) item.selectedIcon else item.unselectedIcon,
-                                    contentDescription = item.label
-                                )
-                            },
-                            label = { Text(item.label) }
-                        )
-                    }
+                val selectedIndex = bottomNavItems.indexOfFirst { item ->
+                    backStackEntry?.destination?.hierarchy?.any {
+                        it.route == item.destination.route
+                    } == true
                 }
+
+                BottomTabBar(
+                    items = bottomNavItems,
+                    selectedIndex = selectedIndex,
+                    onSelect = { index ->
+                        navController.navigate(bottomNavItems[index].destination.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
             }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = Destination.Login.route,
+            startDestination = Destination.Onboarding.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(Destination.Onboarding.route) {
+                OnboardingFlow(
+                    onGetStarted = {
+                        navController.navigate(Destination.Signup.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        }
+                    },
+                    onLogin = {
+                        navController.navigate(Destination.Login.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable(Destination.Login.route) {
                 LoginScreen(
                     onLoginClick = {
@@ -99,7 +101,14 @@ fun ViewFlowApp() {
 
             composable(Destination.Signup.route) {
                 SignupScreen(
-                    onBack = { navController.popBackStack() },
+                    onLoginClick = {
+                        // Swap Signup for Login rather than popping — the back stack may
+                        // not contain Login (e.g. arriving straight from onboarding).
+                        navController.navigate(Destination.Login.route) {
+                            popUpTo(Destination.Signup.route) { inclusive = true }
+                            launchSingleTop = true
+                        }
+                    },
                     onSignupClick = {
                         navController.navigate(Destination.Home.route) {
                             popUpTo(navController.graph.findStartDestination().id) { inclusive = true }
@@ -110,9 +119,6 @@ fun ViewFlowApp() {
 
             composable(Destination.Home.route) {
                 HomeScreen(
-                    onOpenCamp = { campId ->
-                        navController.navigate(Destination.CampDetail.createRoute(campId))
-                    },
                     onOpenRequestBlood = {
                         navController.navigate(Destination.RequestBlood.route)
                     },
@@ -138,6 +144,12 @@ fun ViewFlowApp() {
                     onOpenCamp = { campId ->
                         navController.navigate(Destination.CampDetail.createRoute(campId))
                     }
+                )
+            }
+
+            composable(Destination.Emergency.route) {
+                EmergencyScreen(
+                    onNewRequest = { navController.navigate(Destination.RequestBlood.route) }
                 )
             }
 

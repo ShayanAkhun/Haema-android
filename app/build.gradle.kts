@@ -5,12 +5,12 @@ plugins {
 
 android {
     namespace = "com.viewflow.app"
-    compileSdk = 37
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.viewflow.app"
         minSdk = 26
-        targetSdk = 37
+        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
     }
@@ -58,4 +58,6 @@ dependencies {
     implementation(libs.coil.compose)
     implementation(libs.coil.network.okhttp)
     implementation(libs.coil.svg)
+
+    implementation(libs.osmdroid.android)
 }

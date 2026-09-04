@@ -1,5 +1,6 @@
 package com.viewflow.app.ui.screens
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -8,32 +9,23 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,155 +43,143 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.viewflow.app.R
 import com.viewflow.app.ui.components.AuthHeroBackground
 import com.viewflow.app.ui.components.AuthTextField
+import com.viewflow.app.ui.components.HaemaWordmark
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignupScreen(
-    onBack: () -> Unit,
+    onLoginClick: () -> Unit,
     onSignupClick: () -> Unit
 ) {
     var showEmailForm by remember { mutableStateOf(false) }
     var email by remember { mutableStateOf("") }
     var showEmailSentDialog by remember { mutableStateOf(false) }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Create account") },
-                navigationIcon = {
-                    IconButton(onClick = if (showEmailForm) ({ showEmailForm = false }) else onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                },
-                windowInsets = WindowInsets(0, 0, 0, 0)
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-        ) {
-            // Full illustration, uncropped: width-filling with a 1:1 aspect ratio to
-            // match the SVG's own viewBox, so nothing is cut off.
-            AuthHeroBackground(
-                rawResId = R.raw.signup,
-                contentScale = ContentScale.Fit,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .aspectRatio(1f)
-            )
+    // Gesture / system back collapses the email sub-form before leaving the screen.
+    BackHandler(enabled = showEmailForm) { showEmailForm = false }
 
-            Column(
-                modifier = Modifier.padding(horizontal = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+    Column(
+        modifier = Modifier.fillMaxSize()
+    ) {
+        // Illustration takes whatever vertical space is left after the form, so the
+        // whole screen stays fixed (no scrolling) on any device.
+        AuthHeroBackground(
+            rawResId = R.raw.signup,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .weight(1f)
+        )
+
+        Column(
+            modifier = Modifier.padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            HaemaWordmark(fontSize = 28.sp)
+            Spacer(Modifier.height(10.dp))
+            Text(
+                text = "Join Haema",
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.Bold
+            )
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = "Create an account to start donating",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+            Spacer(Modifier.height(24.dp))
+
+            AnimatedContent(targetState = showEmailForm, label = "signup-method") { emailFormVisible ->
+                if (!emailFormVisible) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        OutlinedButton(
+                            onClick = onSignupClick,
+                            shape = RoundedCornerShape(14.dp),
+                            border = BorderStroke(1.dp, Color(0xFFDADCE0)),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = Color.White,
+                                contentColor = Color(0xFF1F1F1F)
+                            ),
+                            modifier = Modifier.fillMaxWidth().height(52.dp)
+                        ) {
+                            GoogleGlyph()
+                            Spacer(Modifier.width(12.dp))
+                            Text("Continue with Google", fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+                        Button(
+                            onClick = onSignupClick,
+                            shape = RoundedCornerShape(14.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.Black,
+                                contentColor = Color.White
+                            ),
+                            modifier = Modifier.fillMaxWidth().height(52.dp)
+                        ) {
+                            AppleGlyph()
+                            Spacer(Modifier.width(12.dp))
+                            Text("Continue with Apple", fontWeight = FontWeight.SemiBold)
+                        }
+
+                        Spacer(Modifier.height(12.dp))
+                        Button(
+                            onClick = { showEmailForm = true },
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.fillMaxWidth().height(52.dp)
+                        ) {
+                            Icon(Icons.Filled.Email, contentDescription = null, modifier = Modifier.size(20.dp))
+                            Spacer(Modifier.width(12.dp))
+                            Text("Continue with Email", fontWeight = FontWeight.SemiBold)
+                        }
+                    }
+                } else {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(
+                            text = "We'll email you a link to finish creating your account.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        AuthTextField(
+                            value = email,
+                            onValueChange = { email = it },
+                            label = "Email",
+                            leadingIcon = Icons.Filled.Email
+                        )
+
+                        Spacer(Modifier.height(20.dp))
+                        Button(
+                            onClick = { showEmailSentDialog = true },
+                            enabled = email.isNotBlank() && email.contains("@"),
+                            shape = RoundedCornerShape(14.dp),
+                            modifier = Modifier.fillMaxWidth().height(50.dp)
+                        ) {
+                            Text("Continue")
+                        }
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(20.dp))
+            Row(
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Spacer(Modifier.height(8.dp))
                 Text(
-                    text = "Join ViewFlow",
-                    style = MaterialTheme.typography.headlineMedium,
-                    fontWeight = FontWeight.Bold
-                )
-                Spacer(Modifier.height(4.dp))
-                Text(
-                    text = "Create an account to start donating",
+                    text = "Already have an account?",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(Modifier.height(28.dp))
-
-                AnimatedContent(targetState = showEmailForm, label = "signup-method") { emailFormVisible ->
-                    if (!emailFormVisible) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            OutlinedButton(
-                                onClick = onSignupClick,
-                                shape = RoundedCornerShape(14.dp),
-                                border = BorderStroke(1.dp, Color(0xFFDADCE0)),
-                                colors = ButtonDefaults.outlinedButtonColors(
-                                    containerColor = Color.White,
-                                    contentColor = Color(0xFF1F1F1F)
-                                ),
-                                modifier = Modifier.fillMaxWidth().height(52.dp)
-                            ) {
-                                GoogleGlyph()
-                                Spacer(Modifier.width(12.dp))
-                                Text("Continue with Google", fontWeight = FontWeight.SemiBold)
-                            }
-
-                            Spacer(Modifier.height(12.dp))
-                            Button(
-                                onClick = onSignupClick,
-                                shape = RoundedCornerShape(14.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = Color.Black,
-                                    contentColor = Color.White
-                                ),
-                                modifier = Modifier.fillMaxWidth().height(52.dp)
-                            ) {
-                                AppleGlyph()
-                                Spacer(Modifier.width(12.dp))
-                                Text("Continue with Apple", fontWeight = FontWeight.SemiBold)
-                            }
-
-                            Spacer(Modifier.height(12.dp))
-                            Button(
-                                onClick = { showEmailForm = true },
-                                shape = RoundedCornerShape(14.dp),
-                                modifier = Modifier.fillMaxWidth().height(52.dp)
-                            ) {
-                                Icon(Icons.Filled.Email, contentDescription = null, modifier = Modifier.size(20.dp))
-                                Spacer(Modifier.width(12.dp))
-                                Text("Continue with Email", fontWeight = FontWeight.SemiBold)
-                            }
-                        }
-                    } else {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            Text(
-                                text = "We'll email you a link to finish creating your account.",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                            Spacer(Modifier.height(16.dp))
-                            AuthTextField(
-                                value = email,
-                                onValueChange = { email = it },
-                                label = "Email",
-                                leadingIcon = Icons.Filled.Email
-                            )
-
-                            Spacer(Modifier.height(20.dp))
-                            Button(
-                                onClick = { showEmailSentDialog = true },
-                                enabled = email.isNotBlank() && email.contains("@"),
-                                shape = RoundedCornerShape(14.dp),
-                                modifier = Modifier.fillMaxWidth().height(50.dp)
-                            ) {
-                                Text("Continue")
-                            }
-                        }
-                    }
+                TextButton(onClick = onLoginClick) {
+                    Text("Log in", fontWeight = FontWeight.SemiBold)
                 }
-
-                Spacer(Modifier.height(20.dp))
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = "Already have an account?",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                    TextButton(onClick = onBack) {
-                        Text("Log in", fontWeight = FontWeight.SemiBold)
-                    }
-                }
-                Spacer(Modifier.height(24.dp))
             }
+            Spacer(Modifier.height(24.dp))
         }
     }
 
