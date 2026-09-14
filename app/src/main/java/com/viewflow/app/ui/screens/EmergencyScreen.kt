@@ -3,10 +3,12 @@ package com.viewflow.app.ui.screens
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.togetherWith
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +20,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -35,7 +39,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -43,14 +46,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -61,10 +66,14 @@ import com.viewflow.app.data.NearbyDonor
 import com.viewflow.app.data.Urgency
 import com.viewflow.app.ui.components.BloodGroupChip
 import com.viewflow.app.ui.components.DonorMap
+import com.viewflow.app.ui.components.MapMarker
+import com.viewflow.app.ui.components.MarkersMap
 import com.viewflow.app.ui.components.SectionHeader
 import com.viewflow.app.ui.components.SegmentedToggle
 import com.viewflow.app.ui.components.UrgencyChip
 import com.viewflow.app.ui.theme.AccentTeal
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 private enum class EmergencyTab { REQUESTS, DONORS }
 
@@ -83,7 +92,7 @@ private fun expiresLabel(minutes: Int): String {
 }
 
 @Composable
-fun EmergencyScreen(onNewRequest: () -> Unit) {
+fun EmergencyScreen(onNewRequest: () -> Unit, highlightRequestId: String? = null) {
     var tab by remember { mutableStateOf(EmergencyTab.REQUESTS) }
     var query by remember { mutableStateOf("") }
 
@@ -143,7 +152,7 @@ fun EmergencyScreen(onNewRequest: () -> Unit) {
             label = "emergencyTab"
         ) { current ->
             when (current) {
-                EmergencyTab.REQUESTS -> RequestsList(query = query)
+                EmergencyTab.REQUESTS -> RequestsList(query = query, initialHighlightId = highlightRequestId)
                 EmergencyTab.DONORS -> DonorsList(query = query)
             }
         }
@@ -151,7 +160,11 @@ fun EmergencyScreen(onNewRequest: () -> Unit) {
 }
 
 @Composable
-private fun RequestsList(query: String) {
+private fun RequestsList(query: String, initialHighlightId: String? = null) {
+    var showMap by remember { mutableStateOf(true) }
+    var highlightedRequestId by remember { mutableStateOf(initialHighlightId) }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     val q = query.trim()
     val requests = remember(q) {
         MockData.requests
@@ -164,26 +177,96 @@ private fun RequestsList(query: String) {
             .sortedWith(compareBy({ it.urgency.rank() }, { it.expiresInMinutes }))
     }
 
-    if (requests.isEmpty()) {
-        EmptyState("No matching requests")
-        return
+    LaunchedEffect(initialHighlightId, requests) {
+        if (initialHighlightId != null) {
+            val index = requests.indexOfFirst { it.id == initialHighlightId }
+            if (index >= 0) {
+                // +2 for the map/list toggle and map items ahead of the list.
+                listState.animateScrollToItem(index + 2)
+            }
+        }
+    }
+
+    LaunchedEffect(highlightedRequestId) {
+        if (highlightedRequestId != null) {
+            delay(1600)
+            highlightedRequestId = null
+        }
     }
 
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
+        item {
+            MapListToggle(
+                showMap = showMap,
+                onToggle = { showMap = it },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+
+        if (showMap) {
+            item {
+                MarkersMap(
+                    markers = remember(requests) {
+                        requests.map {
+                            MapMarker(
+                                id = it.id,
+                                latitude = it.latitude,
+                                longitude = it.longitude,
+                                title = it.patientName,
+                                snippet = "${it.bloodGroup.label} · ${it.unitsNeeded} unit${if (it.unitsNeeded == 1) "" else "s"} needed"
+                            )
+                        }
+                    },
+                    centerLatitude = MockData.cityLatitude,
+                    centerLongitude = MockData.cityLongitude,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(230.dp)
+                        .clip(RoundedCornerShape(18.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp)),
+                    onMarkerClick = { id ->
+                        val index = requests.indexOfFirst { it.id == id }
+                        if (index >= 0) {
+                            highlightedRequestId = id
+                            // +2 for the map/list toggle and map items ahead of the list.
+                            coroutineScope.launch { listState.animateScrollToItem(index + 2) }
+                        }
+                    }
+                )
+            }
+        }
+
+        if (requests.isEmpty()) {
+            item { EmptyState("No matching requests") }
+        }
         items(requests, key = { it.id }) { request ->
-            EmergencyRequestCard(request)
+            EmergencyRequestCard(
+                request = request,
+                highlighted = request.id == highlightedRequestId
+            )
         }
     }
 }
 
 @Composable
-private fun EmergencyRequestCard(request: BloodRequest) {
+private fun EmergencyRequestCard(
+    request: BloodRequest,
+    modifier: Modifier = Modifier,
+    highlighted: Boolean = false
+) {
+    val borderColor by animateColorAsState(
+        targetValue = if (highlighted) MaterialTheme.colorScheme.primary else Color.Transparent,
+        label = "requestHighlight"
+    )
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(2.dp, borderColor, RoundedCornerShape(18.dp)),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -274,10 +357,12 @@ private fun EmergencyRequestCard(request: BloodRequest) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun DonorsList(query: String) {
-    var listView by remember { mutableIntStateOf(1) } // 0 = Map, 1 = List
+    var showMap by remember { mutableStateOf(true) }
+    var highlightedDonorId by remember { mutableStateOf<String?>(null) }
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val q = query.trim()
     val donors = remember(q) {
@@ -286,21 +371,36 @@ private fun DonorsList(query: String) {
             .sortedBy { it.distanceKm }
     }
 
+    fun messageDonor(donor: NearbyDonor) = runCatching {
+        context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${donor.phone}")))
+    }
+
+    fun callDonor(donor: NearbyDonor) = runCatching {
+        context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${donor.phone}")))
+    }
+
+    LaunchedEffect(highlightedDonorId) {
+        if (highlightedDonorId != null) {
+            delay(1600)
+            highlightedDonorId = null
+        }
+    }
+
     LazyColumn(
+        state = listState,
         modifier = Modifier.fillMaxSize(),
         contentPadding = PaddingValues(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         item {
-            SegmentedToggle(
-                options = listOf("Map View", "List View"),
-                selectedIndex = listView,
-                onSelect = { listView = it },
+            MapListToggle(
+                showMap = showMap,
+                onToggle = { showMap = it },
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
-        if (listView == 0) {
+        if (showMap) {
             item {
                 DonorMap(
                     donors = donors,
@@ -310,7 +410,15 @@ private fun DonorsList(query: String) {
                         .fillMaxWidth()
                         .height(230.dp)
                         .clip(RoundedCornerShape(18.dp))
-                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp))
+                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(18.dp)),
+                    onDonorClick = { donor ->
+                        val index = donors.indexOfFirst { it.id == donor.id }
+                        if (index >= 0) {
+                            highlightedDonorId = donor.id
+                            // +3 for the map/list toggle, map, and section header items ahead of the list.
+                            coroutineScope.launch { listState.animateScrollToItem(index + 3) }
+                        }
+                    }
                 )
             }
         }
@@ -329,20 +437,9 @@ private fun DonorsList(query: String) {
         items(donors, key = { it.id }) { donor ->
             NearbyDonorCard(
                 donor = donor,
-                onMessage = {
-                    runCatching {
-                        context.startActivity(
-                            Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${donor.phone}"))
-                        )
-                    }
-                },
-                onCall = {
-                    runCatching {
-                        context.startActivity(
-                            Intent(Intent.ACTION_DIAL, Uri.parse("tel:${donor.phone}"))
-                        )
-                    }
-                }
+                onMessage = { messageDonor(donor) },
+                onCall = { callDonor(donor) },
+                highlighted = donor.id == highlightedDonorId
             )
         }
     }
@@ -352,10 +449,18 @@ private fun DonorsList(query: String) {
 private fun NearbyDonorCard(
     donor: NearbyDonor,
     onMessage: () -> Unit,
-    onCall: () -> Unit
+    onCall: () -> Unit,
+    modifier: Modifier = Modifier,
+    highlighted: Boolean = false
 ) {
+    val borderColor by animateColorAsState(
+        targetValue = if (highlighted) MaterialTheme.colorScheme.primary else Color.Transparent,
+        label = "donorHighlight"
+    )
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .border(2.dp, borderColor, RoundedCornerShape(18.dp)),
         shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
@@ -451,6 +556,43 @@ private fun NearbyDonorCard(
             }
         }
     }
+}
+
+/** A small text-based Map/List switch, in place of a full-width segmented control. */
+@Composable
+private fun MapListToggle(
+    showMap: Boolean,
+    onToggle: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        MapListToggleLabel(text = "Map", selected = showMap, onClick = { onToggle(true) })
+        Spacer(Modifier.width(6.dp))
+        Text(
+            text = "·",
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Spacer(Modifier.width(6.dp))
+        MapListToggleLabel(text = "List", selected = !showMap, onClick = { onToggle(false) })
+    }
+}
+
+@Composable
+private fun MapListToggleLabel(text: String, selected: Boolean, onClick: () -> Unit) {
+    Text(
+        text = text,
+        style = MaterialTheme.typography.labelLarge,
+        fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .padding(vertical = 4.dp, horizontal = 2.dp)
+    )
 }
 
 @Composable

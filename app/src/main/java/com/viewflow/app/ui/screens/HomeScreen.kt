@@ -60,7 +60,8 @@ import kotlinx.coroutines.delay
 fun HomeScreen(
     onOpenRequestBlood: () -> Unit,
     onOpenDonateTab: () -> Unit,
-    onOpenProfile: () -> Unit
+    onOpenProfile: () -> Unit,
+    onOpenRequest: (String) -> Unit
 ) {
     val donor = MockData.currentDonor
     val locationPermission = rememberPermissionState(Manifest.permission.ACCESS_FINE_LOCATION)
@@ -213,7 +214,7 @@ fun HomeScreen(
             horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             items(MockData.requests) { request ->
-                RequestCard(request = request)
+                RequestCard(request = request, onClick = { onOpenRequest(request.id) })
             }
         }
 

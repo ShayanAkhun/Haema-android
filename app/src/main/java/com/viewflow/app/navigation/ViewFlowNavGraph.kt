@@ -20,9 +20,11 @@ import com.viewflow.app.ui.screens.CampsScreen
 import com.viewflow.app.ui.screens.DonateScreen
 import com.viewflow.app.ui.screens.EditProfileScreen
 import com.viewflow.app.ui.screens.EmergencyScreen
+import com.viewflow.app.ui.screens.HelpSupportScreen
 import com.viewflow.app.ui.screens.HomeScreen
 import com.viewflow.app.ui.screens.LoginScreen
 import com.viewflow.app.ui.screens.OnboardingFlow
+import com.viewflow.app.ui.screens.PrivacySecurityScreen
 import com.viewflow.app.ui.screens.ProfileScreen
 import com.viewflow.app.ui.screens.RequestBloodScreen
 import com.viewflow.app.ui.screens.SignupScreen
@@ -56,7 +58,13 @@ fun ViewFlowApp() {
                     items = bottomNavItems,
                     selectedIndex = selectedIndex,
                     onSelect = { index ->
-                        navController.navigate(bottomNavItems[index].destination.route) {
+                        val destination = bottomNavItems[index].destination
+                        val route = if (destination is Destination.Emergency) {
+                            destination.createRoute()
+                        } else {
+                            destination.route
+                        }
+                        navController.navigate(route) {
                             popUpTo(navController.graph.findStartDestination().id) { saveState = true }
                             launchSingleTop = true
                             restoreState = true
@@ -135,6 +143,9 @@ fun ViewFlowApp() {
                             launchSingleTop = true
                             restoreState = true
                         }
+                    },
+                    onOpenRequest = { requestId ->
+                        navController.navigate(Destination.Emergency.createRoute(requestId))
                     }
                 )
             }
@@ -147,9 +158,19 @@ fun ViewFlowApp() {
                 )
             }
 
-            composable(Destination.Emergency.route) {
+            composable(
+                route = Destination.Emergency.route,
+                arguments = listOf(
+                    navArgument("requestId") {
+                        type = NavType.StringType
+                        nullable = true
+                        defaultValue = null
+                    }
+                )
+            ) { entry ->
                 EmergencyScreen(
-                    onNewRequest = { navController.navigate(Destination.RequestBlood.route) }
+                    onNewRequest = { navController.navigate(Destination.RequestBlood.route) },
+                    highlightRequestId = entry.arguments?.getString("requestId")
                 )
             }
 
@@ -184,12 +205,26 @@ fun ViewFlowApp() {
                     },
                     onEditProfile = {
                         navController.navigate(Destination.EditProfile.route)
+                    },
+                    onPrivacySecurity = {
+                        navController.navigate(Destination.PrivacySecurity.route)
+                    },
+                    onHelpSupport = {
+                        navController.navigate(Destination.HelpSupport.route)
                     }
                 )
             }
 
             composable(Destination.EditProfile.route) {
                 EditProfileScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Destination.PrivacySecurity.route) {
+                PrivacySecurityScreen(onBack = { navController.popBackStack() })
+            }
+
+            composable(Destination.HelpSupport.route) {
+                HelpSupportScreen(onBack = { navController.popBackStack() })
             }
 
             composable(

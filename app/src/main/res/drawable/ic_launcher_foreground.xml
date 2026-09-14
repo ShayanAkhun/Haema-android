@@ -1,13 +1,6 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M54,24 C54,24 32,54 32,72 C32,84.7 41.8,95 54,95 C66.2,95 76,84.7 76,72 C76,54 54,24 54,24 Z" />
-    <path
-        android:fillColor="#B3261E"
-        android:fillAlpha="0.85"
-        android:pathData="M46,50 C42,58 40,64 40,70 C40,78.5 46.3,85 54,85 C56,85 57.9,84.6 59.6,83.9 C50.5,82.4 44,74.9 44,66 C44,60.6 45.3,55.3 46,50 Z" />
-</vector>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Adaptive icon foreground: the same illustration used on the first onboarding
+     page / splash screen, inset so it sits within the safe zone launchers mask to. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:inset="14%"
+    android:drawable="@drawable/first" />

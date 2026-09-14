@@ -23,7 +23,10 @@ sealed class Destination(val route: String) {
     data object Camps : Destination("camps")
 
     /** "Emergency" tab — switchable requests / nearby-donors view. */
-    data object Emergency : Destination("emergency")
+    data object Emergency : Destination("emergency?requestId={requestId}") {
+        const val BASE_ROUTE = "emergency"
+        fun createRoute(requestId: String? = null) = if (requestId != null) "emergency?requestId=$requestId" else BASE_ROUTE
+    }
 
     data object Donate : Destination("donate?campId={campId}") {
         const val BASE_ROUTE = "donate"
@@ -38,6 +41,10 @@ sealed class Destination(val route: String) {
     data object RequestBlood : Destination("request_blood")
 
     data object EditProfile : Destination("edit_profile")
+
+    data object PrivacySecurity : Destination("privacy_security")
+
+    data object HelpSupport : Destination("help_support")
 }
 
 data class BottomNavItem(

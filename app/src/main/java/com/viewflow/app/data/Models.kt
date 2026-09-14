@@ -51,7 +51,9 @@ data class BloodRequest(
     /** Optional free-text note from the requester. */
     val note: String = "",
     /** Donors who have offered to help so far. */
-    val respondents: Int = 0
+    val respondents: Int = 0,
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0
 )
 
 /** A donor shown in the "Nearby donors" list / map on the Emergency screen. */
@@ -75,4 +77,9 @@ data class DonationRecord(
     val date: String,
     val location: String,
     val units: Int
+)
+
+data class FaqItem(
+    val question: String,
+    val answer: String
 )

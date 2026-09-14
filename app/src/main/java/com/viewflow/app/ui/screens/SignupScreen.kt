@@ -3,7 +3,6 @@ package com.viewflow.app.ui.screens
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,6 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,21 +33,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathOperation
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.viewflow.app.R
 import com.viewflow.app.ui.components.AuthHeroBackground
 import com.viewflow.app.ui.components.AuthTextField
-import com.viewflow.app.ui.components.HaemaWordmark
+import com.viewflow.app.ui.theme.HaemaWordmarkFont
 
 @Composable
 fun SignupScreen(
@@ -62,10 +59,13 @@ fun SignupScreen(
     BackHandler(enabled = showEmailForm) { showEmailForm = false }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
     ) {
         // Illustration takes whatever vertical space is left after the form, so the
-        // whole screen stays fixed (no scrolling) on any device.
+        // whole screen stays fixed (no scrolling) on any device. imePadding shrinks
+        // the illustration further when the keyboard opens, keeping the form visible.
         AuthHeroBackground(
             rawResId = R.raw.signup,
             contentScale = ContentScale.Fit,
@@ -78,10 +78,19 @@ fun SignupScreen(
             modifier = Modifier.padding(horizontal = 24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            HaemaWordmark(fontSize = 28.sp)
-            Spacer(Modifier.height(10.dp))
             Text(
-                text = "Join Haema",
+                text = buildAnnotatedString {
+                    append("Join ")
+                    withStyle(
+                        SpanStyle(
+                            color = MaterialTheme.colorScheme.primary,
+                            fontFamily = HaemaWordmarkFont,
+                            fontStyle = FontStyle.Italic
+                        )
+                    ) {
+                        append("Haema")
+                    }
+                },
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
@@ -109,21 +118,6 @@ fun SignupScreen(
                             GoogleGlyph()
                             Spacer(Modifier.width(12.dp))
                             Text("Continue with Google", fontWeight = FontWeight.SemiBold)
-                        }
-
-                        Spacer(Modifier.height(12.dp))
-                        Button(
-                            onClick = onSignupClick,
-                            shape = RoundedCornerShape(14.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = Color.Black,
-                                contentColor = Color.White
-                            ),
-                            modifier = Modifier.fillMaxWidth().height(52.dp)
-                        ) {
-                            AppleGlyph()
-                            Spacer(Modifier.width(12.dp))
-                            Text("Continue with Apple", fontWeight = FontWeight.SemiBold)
                         }
 
                         Spacer(Modifier.height(12.dp))
@@ -209,50 +203,5 @@ private fun GoogleGlyph() {
             fontWeight = FontWeight.Bold,
             style = MaterialTheme.typography.titleMedium
         )
-    }
-}
-
-/**
- * A simplified Apple logo: two overlapping circles unioned into a rounded
- * apple body, a circular bite subtracted from the top right, plus a stem
- * and leaf. Built from boolean path ops rather than freehand curves so the
- * silhouette stays proportionate and recognizable at small sizes.
- */
-@Composable
-private fun AppleGlyph() {
-    Canvas(modifier = Modifier.size(20.dp)) {
-        val w = size.width
-        val h = size.height
-
-        val leftLobe = Path().apply {
-            addOval(Rect(offset = Offset(w * 0.04f, h * 0.32f), size = Size(w * 0.58f, h * 0.60f)))
-        }
-        val rightLobe = Path().apply {
-            addOval(Rect(offset = Offset(w * 0.40f, h * 0.30f), size = Size(w * 0.56f, h * 0.60f)))
-        }
-        val body = Path().apply { op(leftLobe, rightLobe, PathOperation.Union) }
-
-        val bite = Path().apply {
-            addOval(Rect(offset = Offset(w * 0.66f, h * 0.36f), size = Size(w * 0.26f, h * 0.26f)))
-        }
-        val bodyWithBite = Path().apply { op(body, bite, PathOperation.Difference) }
-
-        drawPath(bodyWithBite, color = Color.White)
-
-        drawLine(
-            color = Color.White,
-            start = Offset(w * 0.50f, h * 0.32f),
-            end = Offset(w * 0.50f, h * 0.14f),
-            strokeWidth = w * 0.07f,
-            cap = StrokeCap.Round
-        )
-
-        val leaf = Path().apply {
-            moveTo(w * 0.50f, h * 0.20f)
-            quadraticTo(w * 0.80f, h * 0.02f, w * 0.82f, h * 0.22f)
-            quadraticTo(w * 0.64f, h * 0.28f, w * 0.50f, h * 0.20f)
-            close()
-        }
-        drawPath(leaf, color = Color.White)
     }
 }

@@ -17,17 +17,26 @@ import org.osmdroid.views.CustomZoomButtonsController
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.Marker
 
+/** A single pin on [MarkersMap] - donor and request markers both reduce to this. */
+data class MapMarker(
+    val id: String,
+    val latitude: Double,
+    val longitude: Double,
+    val title: String,
+    val snippet: String
+)
+
 /**
- * OpenStreetMap (osmdroid) map showing a red pin for every [donors] entry.
+ * OpenStreetMap (osmdroid) map showing a red pin for every entry in [markers].
  * Free / no API key — tiles come from the public OSM tile servers.
  */
 @Composable
-fun DonorMap(
-    donors: List<NearbyDonor>,
+fun MarkersMap(
+    markers: List<MapMarker>,
     centerLatitude: Double,
     centerLongitude: Double,
     modifier: Modifier = Modifier,
-    onDonorClick: (NearbyDonor) -> Unit = {}
+    onMarkerClick: (String) -> Unit = {}
 ) {
     val context = LocalContext.current
 
@@ -61,24 +70,27 @@ fun DonorMap(
         }
     }
 
+    // Loading/inflating the drawable on every recomposition (e.g. every keystroke
+    // in a search box above the map) was measurably janky - load it once instead.
+    val pin = remember(context) { ContextCompat.getDrawable(context, R.drawable.ic_map_pin) }
+
     AndroidView(
         factory = { mapView },
         modifier = modifier,
         update = { map ->
-            val pin = ContextCompat.getDrawable(context, R.drawable.ic_map_pin)
             map.overlays.clear()
-            donors.forEach { donor ->
+            markers.forEach { marker ->
                 map.overlays.add(
                     Marker(map).apply {
-                        position = GeoPoint(donor.latitude, donor.longitude)
+                        position = GeoPoint(marker.latitude, marker.longitude)
                         setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM)
                         icon = pin
-                        title = donor.name
-                        snippet = "${donor.bloodGroup.label} · ${donor.distanceKm} km away"
+                        title = marker.title
+                        snippet = marker.snippet
                         setOnMarkerClickListener { clicked, _ ->
                             clicked.showInfoWindow()
                             map.controller.animateTo(clicked.position)
-                            onDonorClick(donor)
+                            onMarkerClick(marker.id)
                             true
                         }
                     }
@@ -86,5 +98,34 @@ fun DonorMap(
             }
             map.invalidate()
         }
+    )
+}
+
+/** Donor-flavoured convenience wrapper over [MarkersMap]. */
+@Composable
+fun DonorMap(
+    donors: List<NearbyDonor>,
+    centerLatitude: Double,
+    centerLongitude: Double,
+    modifier: Modifier = Modifier,
+    onDonorClick: (NearbyDonor) -> Unit = {}
+) {
+    val donorsById = remember(donors) { donors.associateBy { it.id } }
+    MarkersMap(
+        markers = remember(donors) {
+            donors.map {
+                MapMarker(
+                    id = it.id,
+                    latitude = it.latitude,
+                    longitude = it.longitude,
+                    title = it.name,
+                    snippet = "${it.bloodGroup.label} · ${it.distanceKm} km away"
+                )
+            }
+        },
+        centerLatitude = centerLatitude,
+        centerLongitude = centerLongitude,
+        modifier = modifier,
+        onMarkerClick = { id -> donorsById[id]?.let(onDonorClick) }
     )
 }

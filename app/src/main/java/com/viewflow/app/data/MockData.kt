@@ -94,7 +94,9 @@ object MockData {
             expiresInMinutes = 45,
             requestedBy = "Imran Noor (brother)",
             note = "Post-surgery bleeding, ICU. Please come to the blood bank on the 2nd floor.",
-            respondents = 2
+            respondents = 2,
+            latitude = 31.5325,
+            longitude = 74.3400
         ),
         BloodRequest(
             id = "r4",
@@ -107,7 +109,9 @@ object MockData {
             expiresInMinutes = 30,
             requestedBy = "Dr. Ayesha (attending)",
             note = "Road accident, active transfusion. Urgent.",
-            respondents = 1
+            respondents = 1,
+            latitude = 31.5100,
+            longitude = 74.3600
         ),
         BloodRequest(
             id = "r2",
@@ -120,7 +124,9 @@ object MockData {
             expiresInMinutes = 180,
             requestedBy = "Sana Ahmed (wife)",
             note = "Scheduled surgery tomorrow morning, building up reserves.",
-            respondents = 3
+            respondents = 3,
+            latitude = 31.5450,
+            longitude = 74.3500
         ),
         BloodRequest(
             id = "r5",
@@ -132,7 +138,9 @@ object MockData {
             postedMinutesAgo = 90,
             expiresInMinutes = 240,
             requestedBy = "Kamran Sheikh (father)",
-            respondents = 0
+            respondents = 0,
+            latitude = 31.4950,
+            longitude = 74.3300
         ),
         BloodRequest(
             id = "r3",
@@ -145,7 +153,9 @@ object MockData {
             expiresInMinutes = 360,
             requestedBy = "Zainab Malik (self)",
             note = "Thalassemia, routine monthly transfusion.",
-            respondents = 5
+            respondents = 5,
+            latitude = 31.5200,
+            longitude = 74.3800
         )
     )
 
@@ -266,6 +276,47 @@ object MockData {
         DonationRecord("h3", "Oct 19, 2025", "University Health Camp", 1),
         DonationRecord("h4", "Jun 05, 2025", "City Central Blood Bank", 1),
         DonationRecord("h5", "Jan 22, 2025", "Mayo Hospital", 1)
+    )
+
+    val faqs = listOf(
+        FaqItem(
+            question = "Who is eligible to donate blood?",
+            answer = "Most healthy adults aged 18-65 weighing at least 50kg can donate. You should be well-rested, " +
+                "not have donated in the last 3 months, and be free of fever, infection, or recent tattoos/piercings."
+        ),
+        FaqItem(
+            question = "How often can I donate blood?",
+            answer = "Whole blood donors can typically donate every 3 months (12 weeks). The app tracks your next " +
+                "eligible date on your profile so you'll always know when you're cleared to donate again."
+        ),
+        FaqItem(
+            question = "How do I respond to an emergency blood request?",
+            answer = "Open the Emergency tab, find a request matching your blood group, and tap it to see the " +
+                "patient's hospital and contact details. Tap \"I can help\" to notify the requester that you're on the way."
+        ),
+        FaqItem(
+            question = "Is my personal information kept private?",
+            answer = "Yes. Your contact details are only shared with a requester once you choose to respond to their " +
+                "request. You can manage what's visible to other donors from Profile > Privacy & security."
+        ),
+        FaqItem(
+            question = "How do I register for a blood camp?",
+            answer = "Go to the Find tab, open any camp's details, and tap \"Register to donate\". You'll get a " +
+                "reminder before the camp date."
+        ),
+        FaqItem(
+            question = "What should I do before and after donating?",
+            answer = "Eat a good meal and drink plenty of water before donating. Afterwards, rest for a few minutes, " +
+                "avoid heavy lifting or strenuous exercise for 24 hours, and keep the bandage on for a few hours."
+        ),
+        FaqItem(
+            question = "How do I update my blood group or contact details?",
+            answer = "Go to Profile > Edit profile to update your name, contact details, city, and blood group at any time."
+        ),
+        FaqItem(
+            question = "How can I contact support?",
+            answer = "Use the contact options on the Help & support screen to call, email, or chat with our support team."
+        )
     )
 
     fun campById(id: String): BloodCamp? = camps.find { it.id == id }

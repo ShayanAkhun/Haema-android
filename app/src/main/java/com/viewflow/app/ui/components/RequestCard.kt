@@ -67,20 +67,38 @@ private fun formatCountdown(totalSeconds: Int): String {
     return if (h > 0) "%d:%02d:%02d".format(h, m, s) else "%02d:%02d".format(m, s)
 }
 
+/**
+ * Ticks once a second in its own recomposition scope so the rest of the card
+ * (gradient, icons, static text) doesn't redraw every second along with it.
+ */
 @Composable
-fun RequestCard(request: BloodRequest, modifier: Modifier = Modifier) {
-    val accent = requestAccent(request.urgency)
-    val onAccent = onAccentColor(accent)
-
-    var remainingSeconds by remember(request.id) { mutableIntStateOf(request.expiresInMinutes * 60) }
-    LaunchedEffect(request.id) {
+private fun CountdownText(requestId: String, expiresInMinutes: Int, color: Color) {
+    var remainingSeconds by remember(requestId) { mutableIntStateOf(expiresInMinutes * 60) }
+    LaunchedEffect(requestId) {
         while (remainingSeconds > 0) {
             delay(1000)
             remainingSeconds -= 1
         }
     }
+    Text(
+        text = if (remainingSeconds > 0) {
+            "expires in ${formatCountdown(remainingSeconds)}"
+        } else {
+            "EXPIRED"
+        },
+        style = MaterialTheme.typography.labelMedium,
+        color = color,
+        fontFamily = DataMonoFont
+    )
+}
+
+@Composable
+fun RequestCard(request: BloodRequest, modifier: Modifier = Modifier, onClick: () -> Unit = {}) {
+    val accent = requestAccent(request.urgency)
+    val onAccent = onAccentColor(accent)
 
     Card(
+        onClick = onClick,
         modifier = modifier.width(RequestCardWidth),
         shape = RoundedCornerShape(22.dp),
         colors = CardDefaults.cardColors(containerColor = accent),
@@ -184,15 +202,10 @@ fun RequestCard(request: BloodRequest, modifier: Modifier = Modifier) {
                         modifier = Modifier.size(13.dp)
                     )
                     Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = if (remainingSeconds > 0) {
-                            "expires in ${formatCountdown(remainingSeconds)}"
-                        } else {
-                            "EXPIRED"
-                        },
-                        style = MaterialTheme.typography.labelMedium,
-                        color = onAccent.copy(alpha = 0.85f),
-                        fontFamily = DataMonoFont
+                    CountdownText(
+                        requestId = request.id,
+                        expiresInMinutes = request.expiresInMinutes,
+                        color = onAccent.copy(alpha = 0.85f)
                     )
                 }
             }

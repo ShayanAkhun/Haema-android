@@ -58,7 +58,12 @@ import com.viewflow.app.ui.theme.DataMonoFont
 
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun ProfileScreen(onLogout: () -> Unit, onEditProfile: () -> Unit) {
+fun ProfileScreen(
+    onLogout: () -> Unit,
+    onEditProfile: () -> Unit,
+    onPrivacySecurity: () -> Unit,
+    onHelpSupport: () -> Unit
+) {
     val donor = MockData.currentDonor
     var showAllHistory by remember { mutableStateOf(false) }
 
@@ -198,9 +203,9 @@ fun ProfileScreen(onLogout: () -> Unit, onEditProfile: () -> Unit) {
 
                 SettingsRow(icon = Icons.Filled.Person, title = "Edit profile", onClick = onEditProfile)
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                SettingsRow(icon = Icons.Filled.Lock, title = "Privacy & security")
+                SettingsRow(icon = Icons.Filled.Lock, title = "Privacy & security", onClick = onPrivacySecurity)
                 HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f))
-                SettingsRow(icon = Icons.AutoMirrored.Filled.HelpOutline, title = "Help & support")
+                SettingsRow(icon = Icons.AutoMirrored.Filled.HelpOutline, title = "Help & support", onClick = onHelpSupport)
             }
         }
 

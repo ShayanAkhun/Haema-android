@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -41,10 +42,13 @@ fun LoginScreen(
     var passwordVisible by remember { mutableStateOf(false) }
 
     Column(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            .fillMaxSize()
+            .imePadding()
     ) {
         // Illustration takes whatever vertical space is left after the form, so the
-        // whole screen stays fixed (no scrolling) on any device.
+        // whole screen stays fixed (no scrolling) on any device. imePadding shrinks
+        // the illustration further when the keyboard opens, keeping the form visible.
         AuthHeroBackground(
             rawResId = R.raw.login,
             contentScale = ContentScale.Fit,
