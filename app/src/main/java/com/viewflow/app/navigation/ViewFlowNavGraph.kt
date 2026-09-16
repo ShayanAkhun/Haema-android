@@ -17,6 +17,8 @@ import androidx.navigation.compose.composable
 import com.viewflow.app.data.MockData
 import com.viewflow.app.ui.screens.CampDetailScreen
 import com.viewflow.app.ui.screens.CampsScreen
+import com.viewflow.app.ui.screens.ChatConversationScreen
+import com.viewflow.app.ui.screens.ChatScreen
 import com.viewflow.app.ui.screens.DonateScreen
 import com.viewflow.app.ui.screens.EditProfileScreen
 import com.viewflow.app.ui.screens.EmergencyScreen
@@ -33,6 +35,7 @@ private val mainTabRoutes = setOf(
     Destination.Home.route,
     Destination.Camps.route,
     Destination.Emergency.route,
+    Destination.Chat.route,
     Destination.Profile.route,
     // Not a tab, but keep the bar visible so the multi-step flow is escapable.
     Destination.Donate.route
@@ -170,7 +173,29 @@ fun ViewFlowApp() {
             ) { entry ->
                 EmergencyScreen(
                     onNewRequest = { navController.navigate(Destination.RequestBlood.route) },
+                    onOpenChat = { contactId ->
+                        navController.navigate(Destination.ChatConversation.createRoute(contactId))
+                    },
                     highlightRequestId = entry.arguments?.getString("requestId")
+                )
+            }
+
+            composable(Destination.Chat.route) {
+                ChatScreen(
+                    onOpenThread = { contactId ->
+                        navController.navigate(Destination.ChatConversation.createRoute(contactId))
+                    }
+                )
+            }
+
+            composable(
+                route = Destination.ChatConversation.route,
+                arguments = listOf(navArgument("contactId") { type = NavType.StringType })
+            ) { entry ->
+                val contactId = entry.arguments?.getString("contactId") ?: ""
+                ChatConversationScreen(
+                    contactId = contactId,
+                    onBack = { navController.popBackStack() }
                 )
             }
 

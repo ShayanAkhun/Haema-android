@@ -1,6 +1,8 @@
 package com.viewflow.app.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.outlined.Chat
 import androidx.compose.material.icons.filled.Bloodtype
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Map
@@ -26,6 +28,13 @@ sealed class Destination(val route: String) {
     data object Emergency : Destination("emergency?requestId={requestId}") {
         const val BASE_ROUTE = "emergency"
         fun createRoute(requestId: String? = null) = if (requestId != null) "emergency?requestId=$requestId" else BASE_ROUTE
+    }
+
+    /** "Chat" tab — list of conversations with donors/requesters. */
+    data object Chat : Destination("chat")
+
+    data object ChatConversation : Destination("chat_conversation/{contactId}") {
+        fun createRoute(contactId: String) = "chat_conversation/$contactId"
     }
 
     data object Donate : Destination("donate?campId={campId}") {
@@ -58,5 +67,6 @@ val bottomNavItems = listOf(
     BottomNavItem(Destination.Home, "Home", Icons.Filled.Home, Icons.Outlined.Home),
     BottomNavItem(Destination.Camps, "Find", Icons.Filled.Map, Icons.Outlined.Map),
     BottomNavItem(Destination.Emergency, "Emergency", Icons.Filled.Bloodtype, Icons.Outlined.Bloodtype),
+    BottomNavItem(Destination.Chat, "Chat", Icons.AutoMirrored.Filled.Chat, Icons.AutoMirrored.Outlined.Chat),
     BottomNavItem(Destination.Profile, "Profile", Icons.Filled.Person, Icons.Outlined.Person)
 )

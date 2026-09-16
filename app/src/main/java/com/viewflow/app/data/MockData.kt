@@ -270,6 +270,53 @@ object MockData {
         )
     )
 
+    val chatThreads = listOf(
+        ChatThread(
+            id = "d1",
+            contactName = "Maria Garcia",
+            avatarUrl = "https://i.pravatar.cc/150?img=5",
+            phone = "+92 300 1112222",
+            online = true,
+            messages = listOf(
+                ChatMessage("m1", "Hi! I saw your request for O+ near Al-Shifa, is it still open?", fromMe = false, time = "9:41 AM"),
+                ChatMessage("m2", "Yes, still need 1 more unit. Are you free to come today?", fromMe = true, time = "9:43 AM"),
+                ChatMessage("m3", "I can be there by 5pm, I'm A+ though — let me check with a friend who's O+.", fromMe = false, time = "9:44 AM"),
+                ChatMessage("m4", "That would be amazing, thank you so much 🙏", fromMe = true, time = "9:45 AM")
+            )
+        ),
+        ChatThread(
+            id = "d2",
+            contactName = "Nadia Khan",
+            avatarUrl = "https://i.pravatar.cc/150?img=8",
+            phone = "+92 301 3334444",
+            online = false,
+            messages = listOf(
+                ChatMessage("m1", "Thanks for donating last month, the patient recovered well!", fromMe = false, time = "Yesterday"),
+                ChatMessage("m2", "That's great to hear, glad I could help.", fromMe = true, time = "Yesterday")
+            )
+        ),
+        ChatThread(
+            id = "d3",
+            contactName = "Ghum Ashe",
+            avatarUrl = "https://i.pravatar.cc/150?img=15",
+            phone = "+92 302 5556666",
+            online = true,
+            messages = emptyList()
+        )
+    )
+
+    /** Finds an existing thread for [contactId], or builds a fresh empty one from a matching donor. */
+    fun threadForContact(contactId: String): ChatThread? =
+        chatThreads.find { it.id == contactId }
+            ?: nearbyDonors.find { it.id == contactId }?.let { donor ->
+                ChatThread(
+                    id = donor.id,
+                    contactName = donor.name,
+                    avatarUrl = donor.avatarUrl,
+                    phone = donor.phone
+                )
+            }
+
     val donationHistory = listOf(
         DonationRecord("h1", "Jun 14, 2026", "City Central Blood Bank", 1),
         DonationRecord("h2", "Feb 02, 2026", "Al-Shifa General Hospital", 1),

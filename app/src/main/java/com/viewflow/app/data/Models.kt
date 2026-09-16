@@ -72,6 +72,27 @@ data class NearbyDonor(
     val longitude: Double
 )
 
+data class ChatMessage(
+    val id: String,
+    val text: String,
+    /** True if sent by the current user, false if received from the contact. */
+    val fromMe: Boolean,
+    val time: String
+)
+
+/** A chat conversation with another donor/requester, keyed by their contact id. */
+data class ChatThread(
+    val id: String,
+    val contactName: String,
+    val avatarUrl: String,
+    val phone: String,
+    val online: Boolean = false,
+    val messages: List<ChatMessage> = emptyList()
+) {
+    val lastMessage: String get() = messages.lastOrNull()?.text ?: "Say hello 👋"
+    val lastMessageTime: String get() = messages.lastOrNull()?.time ?: ""
+}
+
 data class DonationRecord(
     val id: String,
     val date: String,

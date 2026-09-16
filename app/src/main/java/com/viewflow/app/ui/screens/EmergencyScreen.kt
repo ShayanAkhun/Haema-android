@@ -92,7 +92,11 @@ private fun expiresLabel(minutes: Int): String {
 }
 
 @Composable
-fun EmergencyScreen(onNewRequest: () -> Unit, highlightRequestId: String? = null) {
+fun EmergencyScreen(
+    onNewRequest: () -> Unit,
+    onOpenChat: (String) -> Unit = {},
+    highlightRequestId: String? = null
+) {
     var tab by remember { mutableStateOf(EmergencyTab.REQUESTS) }
     var query by remember { mutableStateOf("") }
 
@@ -153,7 +157,7 @@ fun EmergencyScreen(onNewRequest: () -> Unit, highlightRequestId: String? = null
         ) { current ->
             when (current) {
                 EmergencyTab.REQUESTS -> RequestsList(query = query, initialHighlightId = highlightRequestId)
-                EmergencyTab.DONORS -> DonorsList(query = query)
+                EmergencyTab.DONORS -> DonorsList(query = query, onOpenChat = onOpenChat)
             }
         }
     }
@@ -358,7 +362,7 @@ private fun EmergencyRequestCard(
 }
 
 @Composable
-private fun DonorsList(query: String) {
+private fun DonorsList(query: String, onOpenChat: (String) -> Unit = {}) {
     var showMap by remember { mutableStateOf(true) }
     var highlightedDonorId by remember { mutableStateOf<String?>(null) }
     val listState = rememberLazyListState()
@@ -371,9 +375,7 @@ private fun DonorsList(query: String) {
             .sortedBy { it.distanceKm }
     }
 
-    fun messageDonor(donor: NearbyDonor) = runCatching {
-        context.startActivity(Intent(Intent.ACTION_SENDTO, Uri.parse("smsto:${donor.phone}")))
-    }
+    fun messageDonor(donor: NearbyDonor) = onOpenChat(donor.id)
 
     fun callDonor(donor: NearbyDonor) = runCatching {
         context.startActivity(Intent(Intent.ACTION_DIAL, Uri.parse("tel:${donor.phone}")))
