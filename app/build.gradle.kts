@@ -4,11 +4,11 @@ plugins {
 }
 
 android {
-    namespace = "com.viewflow.app"
+    namespace = "com.haema.app"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.viewflow.app"
+        applicationId = "com.haema.app"
         minSdk = 26
         targetSdk = 36
         versionCode = 1
@@ -17,6 +17,9 @@ android {
 
     buildTypes {
         release {
+            // Signed with the local debug key so `installRelease` / Run works in one step.
+            // Swap for a real upload keystore before publishing to the Play Store.
+            signingConfig = signingConfigs.getByName("debug")
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),

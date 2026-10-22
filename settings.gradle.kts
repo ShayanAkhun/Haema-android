@@ -14,5 +14,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "ViewFlow"
+rootProject.name = "Haema"
 include(":app")
