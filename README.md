@@ -15,7 +15,7 @@ If you find this project helpful, please consider giving it a **Star** ⭐ and *
 1. **Star** this repository in the top right corner.
 2. **Fork** the repository to your own GitHub account.
 3. Clone your forked version locally:
-   ```bash [ git clone https://github.com](https://github.com/ShayanAkhun/Haema-android.git) ```
+   ```bash [ git clone https://github.com](https://github.com/ShayanAkhun/Haema-android.git) ]```
 
 
 🤝 Open source, made for the community
