@@ -242,7 +242,7 @@ This project is open source under the **Apache 2.0 License** — see the [LICENS
 
 **Shayan Ghori**  
 Developer, Haema  
-GitHub: [@<ShayanAkhun>](https://github.com/<your-ShayanAkhun>)
+GitHub: (@ShayanAkhun)(https://github.com/<your-ShayanAkhun>)
 Email: <shayanghouri911@gmail.com>
 
 *If Haema helps you or your community, please give the repository a ⭐ and share it with others.*
