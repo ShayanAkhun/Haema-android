@@ -7,6 +7,19 @@ In many regions, including Gilgit-Baltistan in northern Pakistan, finding a matc
 Haema is non-commercial and open source. Anyone can use it, adapt it for their own community, or contribute to it.
 
 ---
+## 🚀 Getting Started
+
+If you find this project helpful, please consider giving it a **Star** ⭐ and **Forking** it to customize your own version!
+
+### Quick Steps to Use:
+1. **Star** this repository in the top right corner.
+2. **Fork** the repository to your own GitHub account.
+3. Clone your forked version locally:
+   ```bash
+  [ git clone https://github.com](https://github.com/ShayanAkhun/Haema-android.git)
+   ```
+
+
 🤝 Open source, made for the community
 
 Haema is a free, non-commercial, open-source project made for the community. It was not built to make money. It was built because people in our community needed a faster, more reliable way to find blood donors when lives are at stake.
