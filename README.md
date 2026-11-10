@@ -164,10 +164,6 @@ Or, in Android Studio: **File → New → Project from Version Control**, paste 
 1. In Android Studio, choose **File → Open** and select the `haema` folder.
 2. Wait for **Gradle sync** to finish (progress is shown at the bottom of the window). The first sync downloads dependencies and can take a few minutes.
 
-### 3. Connect the backend (Firebase)
-
-> ✏️ *Skip or rewrite this section if the app uses a different backend.*
-
 For security, the Firebase configuration file is not included in the repository. To run the app you need your own:
 
 1. Go to the **[Firebase Console](https://console.firebase.google.com/)** and create a new project.
@@ -237,9 +233,8 @@ If you deploy your own version of Haema, please protect your users' data with pr
 
 ## License
 
-This project is open source under the **MIT License** — see the [LICENSE](LICENSE) file for details.
+This project is open source under the **Apache 2.0 License** — see the [LICENSE](LICENSE) file for details.
 
-> ✏️ *Use the license actually chosen for the repository.*
 
 ---
 
@@ -247,7 +242,7 @@ This project is open source under the **MIT License** — see the [LICENSE](LICE
 
 **Shayan Ghori**  
 Developer, Haema  
-GitHub: [@<your-username>](https://github.com/<your-username>)  
-Email: <your-email>
+GitHub: [@<ShayanAkhun>](https://github.com/<your-ShayanAkhun>)
+Email: <shayanghouri911@gmail.com>
 
 *If Haema helps you or your community, please give the repository a ⭐ and share it with others.*
