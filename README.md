@@ -66,10 +66,10 @@ If you believe in what Haema does, you can help by using it, sharing it, registe
 
 | Layer | Technology |
 |---|---|
-| Language | Kotlin *(or Java)* |
+| Language | Kotlin  |
 | UI | XML layouts / Jetpack Compose |
 | Build system | Gradle (Kotlin DSL) |
-| Backend / database | Firebase Authentication + Cloud Firestore *(or your own API)* |
+| Backend / database | Firebase Authentication + Cloud Firestore + Php|
 | Minimum Android version | Android 7.0 (API 24) |
 | Target SDK | API 34 |
 
